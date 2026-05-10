@@ -1,4 +1,4 @@
-package access_token
+package accesstoken
 
 import (
 	"fmt"
@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-type AccessTokenConfig struct {
+type Config struct {
 	Secret   string        `json:"secret"`
 	Issuer   string        `json:"issuer"`
 	Audience string        `json:"audience"`
 	TTL      time.Duration `json:"TTL"`
 }
 
-func Load() (*AccessTokenConfig, error) {
-	cfg := &AccessTokenConfig{}
+func LoadConfig() (*Config, error) {
+	cfg := &Config{}
 
 	if v := getEnv("JWT_SECRET"); v != "" {
 		cfg.Secret = v

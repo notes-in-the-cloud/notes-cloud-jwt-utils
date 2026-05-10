@@ -1,4 +1,4 @@
-package access_token
+package accesstoken
 
 import (
 	"fmt"
@@ -12,36 +12,36 @@ type timeService interface {
 	Now() time.Time
 }
 
-type AccessTokenClaims struct {
+type Claims struct {
 	UserID string `json:"userId"`
 
 	jwt.RegisteredClaims
 }
 
-type service struct {
+type Service struct {
 	timeService        timeService
-	cfg                AccessTokenConfig
+	cfg                Config
 	tokenSigningMethod jwt.SigningMethod
 }
 
 func NewService(
 	timeService timeService,
-	cfg AccessTokenConfig,
-	tokenSigningMethod jwt.SigningMethod) *service {
-	return &service{
+	cfg Config,
+	tokenSigningMethod jwt.SigningMethod) *Service {
+	return &Service{
 		timeService:        timeService,
 		cfg:                cfg,
 		tokenSigningMethod: tokenSigningMethod,
 	}
 }
 
-func (s *service) GenerateForUser(
+func (s *Service) GenerateForUser(
 	userID string,
-) (*AccessToken, error) {
+) (*Token, error) {
 	now := s.timeService.Now().UTC()
 	expiresAt := now.Add(s.cfg.TTL)
 
-	claims := AccessTokenClaims{
+	claims := Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   userID,
@@ -57,7 +57,7 @@ func (s *service) GenerateForUser(
 		return nil, fmt.Errorf("sign access token: %w", err)
 	}
 
-	return &AccessToken{
+	return &Token{
 		Token:     signedToken,
 		TokenType: tokenTypeBearer,
 		ExpiresIn: int(s.cfg.TTL.Seconds()),
@@ -65,12 +65,12 @@ func (s *service) GenerateForUser(
 	}, nil
 }
 
-func (s *service) ValidateAccessToken(
+func (s *Service) ValidateAccessToken(
 	rawToken string,
-) (*AccessTokenClaims, error) {
+) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(
 		rawToken,
-		&AccessTokenClaims{},
+		&Claims{},
 		func(token *jwt.Token) (any, error) {
 			if token.Method != s.tokenSigningMethod {
 				return nil, fmt.Errorf("unexpected signing method: %s", token.Method.Alg())
@@ -87,7 +87,7 @@ func (s *service) ValidateAccessToken(
 		return nil, fmt.Errorf("parse access token: %w", err)
 	}
 
-	claims, ok := token.Claims.(*AccessTokenClaims)
+	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid access token claims")
 	}
