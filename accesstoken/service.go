@@ -78,6 +78,7 @@ func (s *Service) ValidateAccessToken(
 
 			return []byte(s.cfg.Secret), nil
 		},
+		jwt.WithValidMethods([]string{s.tokenSigningMethod.Alg()}),
 		jwt.WithIssuer(s.cfg.Issuer),
 		jwt.WithAudience(s.cfg.Audience),
 		jwt.WithExpirationRequired(),
