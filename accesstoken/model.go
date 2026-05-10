@@ -1,8 +1,8 @@
-package access_token
+package accesstoken
 
 import "time"
 
-type AccessToken struct {
+type Token struct {
 	Token     string    `json:"token"`
 	TokenType string    `json:"tokenType"`
 	ExpiresIn int       `json:"expiresIn"`
